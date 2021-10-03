@@ -30,7 +30,7 @@ public class PentagonRenderer {
         this.origin = origin;
     }
 
-    // 
+    //
     public void render() {
         canvas.clearLinesToPaint();
         System.out.println(Arrays.toString(origin.getNeighbor(0).getGeometry()));

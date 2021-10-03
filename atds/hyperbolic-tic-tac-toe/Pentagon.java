@@ -6,6 +6,13 @@
 import java.util.*;
 
 
+// Enumerator for which player owns a Pentagon.
+enum Player {
+    NONE,
+    ONE,
+    TWO
+}
+
 // Pentagon class is the Node class.
 // each Pentagon is connected with 10 other Pentagons through Pentagon.neighbors[i]
 class Pentagon {
@@ -27,6 +34,9 @@ class Pentagon {
                                             //          and points[i*2+1] = lines[i].midpoint()
     private Vec2 center;  // calculated center of Pentagon in current projection
     private double size;  // center-to-corner length of Pentagon in current projection
+
+    // each Pentagon contains a owner value indicating which player it currently belongs to
+    private Player owner = Player.NONE;
 
     // ----------------------------------------- //
     // ---------------CONSTRUCTOR--------------- //
@@ -86,26 +96,30 @@ class Pentagon {
         }
     }
 
-
+    // sets a Pentagon neighbor i's neighbors on its layer.
+    // precondition: nbs is completely filled with Pentagons
+    // precondition: 0 <= i < 10 (index in nbs to write neighbors for)
     private void setStartingNeighbors(int i, Pentagon[] nbs) {
         if (i % 2 == layer % 2) {
-            // side
+            // nbs[i] is a side-side connection
             nbs[i].setNeighbor((i+4) % 10, nbs[(i+2) % 10]);
             nbs[i].setNeighbor((i+6) % 10, nbs[(i+8) % 10]);
             nbs[i].setNeighbor((i+3) % 10, nbs[(i+1) % 10]);
             nbs[i].setNeighbor((i+7) % 10, nbs[(i+9) % 10]);
         } else {
-            // corner
+            // nbs[i] is a corner-corner connection
             nbs[i].setNeighbor((i+4) % 10, nbs[(i+1) % 10]);
             nbs[i].setNeighbor((i+6) % 10, nbs[(i+9) % 10]);
         }
     }
 
-    public Pentagon getNeighbor(int side){
+    // returns the neighbor on {side} side of this Pentagon
+    public Pentagon getNeighbor(int side) {
         return neighbors[side];
     }
 
-    public void setNeighbor(int side, Pentagon p){
+    // sets a neighbor of this Pentagon
+    private void setNeighbor(int side, Pentagon p) {
         neighbors[side] = p;
     }
 
@@ -201,7 +215,7 @@ class Pentagon {
     }
 
     // you're just gonna have to take my word that this method works.
-    // update: it doesn't work and I don't think I have enough time to fix it
+    // update: it only works up to a depth of 2. then it breaks. I don't have enough time to debug this.
     // all the calculations here are derived from my implementation of the Pentagon.
     public void generateGeometry(Pentagon parent, int parentSide) {
         // find and generate all the known sides
