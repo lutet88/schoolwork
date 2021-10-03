@@ -1,6 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.*;
+import java.sql.Array;
+import java.util.HashSet;
+import java.util.Arrays;
 
 
 public class PentagonRenderer {
@@ -18,38 +21,15 @@ public class PentagonRenderer {
         this.origin = origin;
     }
 
-    public static Line createLineByAngle(Vec2 origin, double angle, double length) {
-        double endX = origin.x + Math.cos(angle) * length;
-        double endY = origin.y + Math.sin(angle) * length;
-        return new Line(origin, new Vec2(endX, endY));
-    }
-
-    public static Vec2 offsetByAngle(Vec2 origin, double angle, double length) {
-        return new Vec2(origin.x + Math.cos(angle) * length,
-                        origin.y + Math.sin(angle) * length);
-    }
-
-
     public void render() {
-        Line[] lines = new Line[15];
-        for (int i = 0; i < 5; i++){
-            double a = i * (Math.PI * 2 / 5);
-            double a2 = a + 0.7 * Math.PI;
-            double l2 = 200 * Math.sin(Math.PI * 2 / 10);
-            Vec2 origin = offsetByAngle(new Vec2(500, 500), a, 100);
-            lines[i] = createLineByAngle(origin, a2, l2);
-            lines[i+5] = createLineByAngle(lines[i].p2, lines[i].getAngle(), 50);
-        }
-        for (int i = 0; i < 5; i++){
-            lines[i+10] = createLineByAngle(lines[i].p2, Math.PI + lines[i+1].getAngle(), 50);
-        }
-
-        canvas.setLinesToPaint(lines);
+        canvas.clearLinesToPaint();
+        System.out.println(Arrays.toString(origin.getNeighbor(0).getGeometry()));
+        canvas.setLinesToPaint(origin.getGeometries(3));
     }
 }
 
 class Canvas extends JFrame {
-    private Line[] linesToPaint;
+    private HashSet<Line[]> linesToPaint = new HashSet<Line[]>();
 
     public Canvas() {
         super("Canvas");
@@ -57,17 +37,29 @@ class Canvas extends JFrame {
         setLocationRelativeTo(null);
     }
 
-    public void setLinesToPaint(Line[] linesToPaint) {
+    public void setLinesToPaint(HashSet<Line[]> linesToPaint) {
         this.linesToPaint = linesToPaint;
+    }
+
+    public void addLinesToPaint(Line[] lines) {
+        linesToPaint.add(lines);
+    }
+
+    public void clearLinesToPaint() {
+        linesToPaint = new HashSet<Line[]>();
     }
 
     @Override
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D g2 = (Graphics2D) g;
-        for (Line line : linesToPaint) {
-            System.out.println(line);
-            g2.draw(line.getLine2D());
+        for (Line[] lineGroup : linesToPaint) {
+            for (Line line : lineGroup) {
+                // System.out.println(line);
+                if (line != null) {
+                    g2.draw(line.getLine2D());
+                }
+            }
         }
     }
 }

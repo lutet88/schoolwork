@@ -27,6 +27,16 @@ public class Line {
         return Math.atan(yPart / xPart);
     }
 
+    public double getMagnitude() {
+        return Math.sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y));
+    }
+
+    public static Line createFromAngle(Vec2 origin, double angle, double length) {
+        double endX = origin.x + Math.cos(angle) * length;
+        double endY = origin.y + Math.sin(angle) * length;
+        return new Line(origin, new Vec2(endX, endY));
+    }
+
     @Override
     public String toString() {
         return this.p1+" -> "+this.p2+" (angle="+getAngle()+")";
