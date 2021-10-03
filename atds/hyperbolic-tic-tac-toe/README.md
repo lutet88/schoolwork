@@ -1,5 +1,11 @@
 # Hyperbolic Tic-Tac-Toe
 
+## Inspiration
+I wanted to write some minigame that can function nearly entirely recursively, for this recursion project. 
+I remembered that Tic-Tac-Toe, or the (m, n, k) game, can be modeled as a graph and thus implemented recursively. 
+I wondered if anyone had made a "Hyperbolic" version of the game, where the whole gaming is played on a uniform 
+hyperbolic tiling. Turns out, no. That's why I chose this project.
+
 ## Project goal
 - Build a functional tic-tac-toe game on a {5, 4} hyperbolic tiling.
     - Data structures and game rules ✔️ 
