@@ -1,3 +1,8 @@
+/*
+ ** Oct 2021
+ ** https://github.com/lutet88
+ */
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.*;
@@ -6,21 +11,26 @@ import java.util.HashSet;
 import java.util.Arrays;
 
 
+// Render handler class for Pentagons.
+// Uses the Java awt/swing framework.
 public class PentagonRenderer {
     private JPanel panel;
     private Canvas canvas;
 
     private Pentagon origin;
 
+    // constructor
+    // PentagonRenders should be created with the origin Pentagon of Pentagon.createPentaGrid(maxDepth)
     public PentagonRenderer(Pentagon origin) {
         canvas = new Canvas();
         panel = new JPanel();
         canvas.getContentPane().add(panel);
-        canvas.setSize(1000, 1000);
+        canvas.setSize(1000, 1000); // never ended up implementing variable display sizes
         canvas.setVisible(true);
         this.origin = origin;
     }
 
+    // 
     public void render() {
         canvas.clearLinesToPaint();
         System.out.println(Arrays.toString(origin.getNeighbor(0).getGeometry()));
