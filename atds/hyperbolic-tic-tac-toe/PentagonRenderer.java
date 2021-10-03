@@ -30,7 +30,8 @@ public class PentagonRenderer {
         this.origin = origin;
     }
 
-    //
+    // render
+    // generates the objects and tells the canvas to render that on next refresh
     public void render() {
         canvas.clearLinesToPaint();
         System.out.println(Arrays.toString(origin.getNeighbor(0).getGeometry()));
@@ -38,7 +39,9 @@ public class PentagonRenderer {
     }
 }
 
+// Canvas: JFrame for drawing
 class Canvas extends JFrame {
+    // Canvas uses a HashSet to reduce redundancies while drawing
     private HashSet<Line[]> linesToPaint = new HashSet<Line[]>();
 
     public Canvas() {
@@ -47,22 +50,29 @@ class Canvas extends JFrame {
         setLocationRelativeTo(null);
     }
 
+    // sets linesToPaint to new HashSet.
     public void setLinesToPaint(HashSet<Line[]> linesToPaint) {
         this.linesToPaint = linesToPaint;
     }
 
+    // adds a new Line[] to the HashSet.
     public void addLinesToPaint(Line[] lines) {
         linesToPaint.add(lines);
     }
 
+    // sets linesToPaint to a new empty HashSet.
     public void clearLinesToPaint() {
         linesToPaint = new HashSet<Line[]>();
     }
 
+    // Override JFrame's paint method so we can draw
     @Override
     public void paint(Graphics g) {
+        // initialize graphics
         super.paint(g);
         Graphics2D g2 = (Graphics2D) g;
+
+        // draw every line in linesToPaint
         for (Line[] lineGroup : linesToPaint) {
             for (Line line : lineGroup) {
                 // System.out.println(line);

@@ -124,7 +124,86 @@ class Pentagon {
     }
 
     // ----------------------------------------- //
-    // ---------STRING REPRESENTATION----------- //
+    // ---------------NAVIGATION---------------- //
+    // ----------------------------------------- //
+
+    // public navigate method.
+    // redirects towards navigate(instructions, index)
+    // instructions: int[] containing ints [0, 10) as directions to go
+    public Pentagon navigate(int[] instructions) {
+        return navigate(instructions, 0);
+    }
+
+    // recursive navigation function.
+    private Pentagon navigate(int[] instructions, int index) throws NullPointerException{
+        // base case: if no more instructions, return this Pentagon
+        if (index >= instructions.length) return this;
+
+        if (neighbors[instructions[index]] == null) throw new NullPointerException();
+        // continue navigating, increment index
+        return neighbors[instructions[index]].navigate(instructions, index+1);
+    }
+
+    // ----------------------------------------- //
+    // ---------------GAME RULES---------------- //
+    // ----------------------------------------- //
+
+    // sets the owner of this tile.
+    public void setOwner(Player p) {
+        owner = p;
+    }
+
+    // gets the owner of this tile.
+    public Player getOwner() {
+        return owner;
+    }
+
+    // initial case for recursive hasWon()
+    // runs hasWon(x, dir) for each direction from origin
+    // checks if there are x-in-a-row through directionalTraverse()
+    // returns Player that has won, otherwise Player.NONE
+    // precondition: Pentagon must be origin!!!!!!
+    public Player hasWon(int x) {
+        for (int i = 0; i < 10; i++) {
+            Player p = hasWon(x, i);
+            if (p != Player.NONE) return p;
+        }
+        return Player.NONE;
+    }
+
+    // recursive case for hasWon()
+    private Player hasWon(int x, int dir) {
+        if (this.owner != Player.NONE) { // if this is not owned, not worth traversing for
+            // for each direction,
+            for (int i = 0; i < 10; i++) {
+                // return the winning player if directionalTraverse returns them
+                Player p = directionalTraverse(i, x, this.owner);
+                if (p != Player.NONE) return p;
+            }
+        }
+
+        // continue to run hasWon() for next 4 nodes in this direction
+        // recursive base case is where all of its neighbors in the outer direction are null.
+        for (int i = dir - 1; i < dir + 3; i++) {
+            if (neighbors[(i + 10) % 10] == null) continue;
+            Player p = neighbors[(i + 10) % 10].hasWon(x, dir);
+            if (p != Player.NONE) return p;
+        }
+
+        // if no winning player has been returned, return default
+        return Player.NONE;
+    }
+
+    // recursive traversal in a single direction.
+    // tries to match with the match defined in the original tile.
+    private Player directionalTraverse(int dir, int len, Player match) {
+        if (len <= 0) return match;
+        if (match != this.owner) return Player.NONE;
+        return neighbors[dir].directionalTraverse(dir, len-1, match);
+    }
+
+    // ----------------------------------------- //
+    // ----------STRING REPRESENTATION---------- //
     // ----------------------------------------- //
 
     // simple redirect to toString(3) (default)
@@ -136,8 +215,12 @@ class Pentagon {
     // builds the base string for recursively printing out Pentagons
     public String toString(int maxDepth) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Pentagon origin on layer ")
+        sb.append("Pentagon ")
+            .append(this.hashCode())
+            .append(" on layer ")
             .append(layer)
+            .append(", owner: ")
+            .append(owner)
             .append("\n");
 
         // for each neighbor,
@@ -150,6 +233,8 @@ class Pentagon {
                 .append(i)
                 .append(": ")
                 .append(neighbors[i].toString(i, 2, maxDepth))
+                .append(", owner: ")
+                .append(neighbors[i].getOwner())
                 .append("\n");
         }
         return sb.toString();
@@ -214,8 +299,8 @@ class Pentagon {
         }
     }
 
-    // you're just gonna have to take my word that this method works.
-    // update: it only works up to a depth of 2. then it breaks. I don't have enough time to debug this.
+    // you're just gonna have to take my word on this method.
+    // it only works up to a depth of 2. then it breaks. I don't have enough time to debug this.
     // all the calculations here are derived from my implementation of the Pentagon.
     public void generateGeometry(Pentagon parent, int parentSide) {
         // find and generate all the known sides
@@ -257,7 +342,7 @@ class Pentagon {
             lines[(lineAnchor + 3) % 5] = new Line(finalVertex, vertices[(lineAnchor + 4) % 5]);
 
         } else { // case: two corners meeting
-            System.out.print(parentSide+": ");
+            //System.out.print(parentSide+": ");
             // points and vertices
             points[parentSide] = parent.points[(parentSide + 5) % 10];
             vertices[((parentSide + 1) % 10) / 2] = parent.vertices[((parentSide + 6) % 10) / 2];
@@ -276,10 +361,10 @@ class Pentagon {
             Line l1 = new Line(points[parentSide], vertices[(connectingVertex + 1) % 5]);
             Line l2 = new Line(points[parentSide], vertices[(connectingVertex + 4) % 5]);
 
-            System.out.println(points[parentSide]);
+            /*System.out.println(points[parentSide]);
             System.out.println(connectingVertex);
             System.out.println(Arrays.toString(vertices));
-            System.out.println(Arrays.toString(lines));
+            System.out.println(Arrays.toString(lines));*/
 
             double l1a = l1.getAngle();
             double l2a = l2.getAngle();
@@ -291,7 +376,7 @@ class Pentagon {
             double a1 = (l1a * 2 + l2a) / 3;
             double a2 = (l1a + l2a * 2) / 3;
 
-            System.out.println("angle "+l1.getAngle()+" and "+l2.getAngle()+", resulting in "+(l2.getAngle() - l1.getAngle()));
+            // System.out.println("angle "+l1.getAngle()+" and "+l2.getAngle()+", resulting in "+(l2.getAngle() - l1.getAngle()));
 
             // find length by taking a value between l1.mag and l2.mag
             double len1 = (l1.getLength() * 2 + l2.getLength()) / 3;

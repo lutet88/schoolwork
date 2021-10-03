@@ -11,11 +11,15 @@
 */
 
 class Main {
+
+    static final int X = 3;
+    static final int GRID_DEPTH = 3;
+
     public static void main(String[] args){
         System.out.println("Pentagonal Tic-Tac-Toe");
 
         // create graph of Pentagons
-        Pentagon origin = Pentagon.createPentaGrid(4);
+        Pentagon origin = Pentagon.createPentaGrid(GRID_DEPTH);
 
         // demonstrate cursed recursive toString() method
         System.out.println(origin);
@@ -25,5 +29,11 @@ class Main {
         ** PentagonRenderer r = new PentagonRenderer(origin);
         ** r.render();
         */
+
+        // create CommandLineGame
+        CommandLineGame clg = new CommandLineGame(origin, X);
+
+        // run the game loop
+        clg.gameLoop();
     }
 }
