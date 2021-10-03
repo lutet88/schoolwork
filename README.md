@@ -13,3 +13,8 @@ I created it so I can work across computers over GitHub rather than through a me
 
 ## noteworthy projects
 * [`atds/hyperbolic-tic-tac-toe`](atds/hyperbolic-tic-tac-toe)
+
+## note
+please ignore the first 9 commit names, since I didn't have a standard.
+
+for my own reference, it's {project}-{commit_type}: {what}
