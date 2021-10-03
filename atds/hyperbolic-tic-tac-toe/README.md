@@ -54,6 +54,10 @@ other `Pentagon`s
 #### Doesn't really work:
 - Rendering the `Pentagon` "grid": Depth-first recursive collection of `Line[]`.
 
+![Rendering is really hard!](https://media.discordapp.net/attachments/561405222333841410/894197307589935134/unknown.png)
+
+Rendering is really hard! I'm not very good at it, either.
+
 #### Time complexity:
 d = Depth 
 
