@@ -1,7 +1,5 @@
 # Hyperbolic Tic-Tac-Toe
 
-![httt logo](https://media.discordapp.net/attachments/885915977034924123/894267808450498631/httt.png?width=570&height=570)
-
 ## Inspiration
 I wanted to write some minigame that can function nearly entirely recursively, for this recursion project. 
 I remembered that Tic-Tac-Toe, or the (m, n, k) game, can be modeled as a graph and thus implemented recursively. 
