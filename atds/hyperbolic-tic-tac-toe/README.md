@@ -11,7 +11,7 @@ hyperbolic tiling. Turns out, no. That's why I chose this project.
     - Data structures and game rules ✔️ 
     - Command-line interface ✔️
     - Graphical interface ⌛
-        - [Poincare](https://en.wikipedia.org/wiki/Poincar%C3%A9_disk_model) or 
+        - [Poincaré](https://en.wikipedia.org/wiki/Poincar%C3%A9_disk_model) or 
           [Beltrami-Klein](https://en.wikipedia.org/wiki/Beltrami%E2%80%93Klein_model) renderer
           
         - Using GUI toolkit (either `JavaFX` or `QtJambi`)
@@ -62,19 +62,24 @@ other `Pentagon`s
 
 ![Rendering is really hard!](https://media.discordapp.net/attachments/561405222333841410/894197307589935134/unknown.png)
 
-Rendering is really hard! I'm not very good at it, either.
+##### Rendering is really hard! I'm not very good at it, either.
 
 #### Time complexity:
 d = Depth 
 
-n = Number of Pentagonal Nodes (roughly `4^d`)
+n = Number of Pentagonal Nodes (`≈ 10 * 4^d`)
 
 m = Number of instructions for navigation
 
-- Construction: `O(n)`
-- `toString()`: `O(n)`
+- Construction: `O(n) ≈ O(4^d)`
+- `toString()`: `O(n) ≈ O(4^d)`
 - Navigation: `O(m)`
-- Detecting X-in-a-row: `O(10^d * X)`
+- Detecting `X`-in-a-row: `O(10^d * X)`
 
 ### UML Diagram
 ![UML Diagram](https://cdn.discordapp.com/attachments/885915977034924123/894254671517089862/unknown.png)
+
+## Current Next Steps
+- Properly figure out how to render a Poincaré disk using [this tutorial](http://www.malinc.se/noneuclidean/en/poincaretiling.php) I just discovered
+- Make `Pentagon` universal for any Order-4 polygonal tiling
+- Implement a graphical GUI
