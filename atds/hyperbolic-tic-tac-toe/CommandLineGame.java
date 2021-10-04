@@ -62,7 +62,7 @@ public class CommandLineGame {
                     try {
                         for (int i = 0; i < temp.length; i++) {
                             vals[i] = Integer.parseInt(temp[i].strip()) % 10;
-                            assert vals[i] > 0;
+                            assert vals[i] >= 0;
                         }
                     } catch (NumberFormatException e) {
                         // covered since parseInt throws NumberFormatException
