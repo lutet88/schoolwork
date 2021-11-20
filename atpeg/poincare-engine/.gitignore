@@ -1,0 +1,15 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/poincare-engine
+poincare-engine.so
+poincare-engine.dylib
+poincare-engine.dll
+poincare-engine.a
+poincare-engine.lib
+poincare-engine-test-*
+*.exe
+*.o
+*.obj
+*.lst

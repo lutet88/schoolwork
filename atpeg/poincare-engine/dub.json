@@ -1,0 +1,12 @@
+{
+	"authors": [
+		"lutet"
+	],
+	"copyright": "Copyright © 2021, lutet",
+	"dependencies": {
+		"dray": ">=3.5.0-r4 <3.6.0-0"
+	},
+	"description": "2D poincare disk renderer",
+	"license": "Hybrid BSD",
+	"name": "poincare-engine"
+}
