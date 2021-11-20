@@ -2,6 +2,7 @@ import std.stdio;
 
 import poincare.euclidean;
 import poincare.rendering;
+import poincare.poincare;
 
 import raylib;
 
@@ -15,26 +16,28 @@ void main()
     Screen screen = Screen();
     RenderQueue rq = new RenderQueue(screen);
 
-    Circle tp = new Circle(Point(-0.4, 0.7), Point(0.1, 0.2));
-    rq.add(tp);
+
+    Circle c = new Circle(Point(0, 0), 1);
+    rq.add(c);
+    Point p = Point(0.5, 0.3);
+    Point p_prime;
 
     while (!WindowShouldClose()) {
 
-        if (IsKeyDown(KeyboardKey.KEY_RIGHT)) tp.center.x += 0.01f;
-        if (IsKeyDown(KeyboardKey.KEY_LEFT)) tp.center.x -= 0.01f;
-        if (IsKeyDown(KeyboardKey.KEY_UP)) tp.center.y -= 0.01f;
-        if (IsKeyDown(KeyboardKey.KEY_DOWN)) tp.center.y += 0.01f;
+        if (IsKeyDown(KeyboardKey.KEY_RIGHT)) p.x += 0.01f;
+        if (IsKeyDown(KeyboardKey.KEY_LEFT)) p.x -= 0.01f;
+        if (IsKeyDown(KeyboardKey.KEY_UP)) p.y -= 0.01f;
+        if (IsKeyDown(KeyboardKey.KEY_DOWN)) p.y += 0.01f;
 
-        if (IsKeyDown(KeyboardKey.KEY_D)) tp.radius += 0.01f;
-        if (IsKeyDown(KeyboardKey.KEY_A)) tp.radius -= 0.01f;
-        //if (IsKeyDown(KeyboardKey.KEY_W)) tp.p2.y -= 0.01f;
-        //if (IsKeyDown(KeyboardKey.KEY_S)) tp.p2.y += 0.01f;
+        p_prime = c.circularInversion(p);
 
         BeginDrawing();
         ClearBackground(Colors.BLACK);
 
-        DrawCircleLines(500, 500, 250, Colors.WHITE);
+        //DrawCircleLines(500, 500, 250, Colors.WHITE);
         rq.render();
+        p.draw(screen);
+        p_prime.draw(screen);
 
         EndDrawing();
     }

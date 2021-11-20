@@ -23,6 +23,10 @@ struct Point {
     void draw(Screen screen) {
         DrawCircleV(toScaledVector(screen), 4, Colors.WHITE);
     }
+
+    void draw(Screen screen, Color color) {
+        DrawCircleV(toScaledVector(screen), 4, color);
+    }
 }
 
 class TwoPoints : RenderBase {
@@ -39,7 +43,7 @@ class TwoPoints : RenderBase {
 }
 
 class Segment : TwoPoints {
-    this (Point start, Point end) {
+    this(Point start, Point end) {
         p1 = start;
         p2 = end;
     }
@@ -59,7 +63,7 @@ class Segment : TwoPoints {
 }
 
 class Vector : TwoPoints {
-    this (Point start, Point end) {
+    this(Point start, Point end) {
         p1 = start;
         p2 = end;
     }
@@ -81,7 +85,7 @@ class Vector : TwoPoints {
 }
 
 class RayLine : TwoPoints {
-    this (Point start, Point end) {
+    this(Point start, Point end) {
         p1 = start;
         p2 = end;
     }
@@ -105,7 +109,7 @@ class RayLine : TwoPoints {
 }
 
 class Line : TwoPoints {
-    this (Point start, Point end) {
+    this(Point start, Point end) {
         p1 = start;
         p2 = end;
     }
@@ -136,36 +140,71 @@ class Circle : RenderBase {
     double radius;
     Point center;
     Point renderPoint;
+    Point[] constraints;
 
     this(Point c, double r) {
         radius = r;
         center = c;
         renderPoint = Point(-1000, -1000); // dead point
+        constraints = [center];
     }
 
     this(Point c, Point side) {
         center = c;
         radius = TwoPoints.distance(c, side);
         renderPoint = side;
+        constraints = [center, side];
     }
 
-    this(Point p1, Point p2, Point p3) {
-        // circle from three points...... don't think this was necessary
+    // definitely weren't plagiarized from geeks4geeks
+    private double cy(Point p1, Point p2, Point p3) {
         double f = (((p1.x * p1.x) - (p3.x * p3.x)) * (p1.x - p2.x) +
                     ((p1.y * p1.y) - (p3.y * p3.y)) * (p1.x - p2.x) +
                     ((p2.x * p2.x) - (p1.x * p1.x)) * (p1.x - p3.x) +
                     ((p2.y * p2.y) - (p1.y * p1.y)) * (p1.x - p3.x)) /
                     (2 * ((p3.y - p1.y) * (p1.x - p2.x) - (p2.y - p1.y) * (p1.x - p3.x)));
+        return -f;
+    }
+    private double cx(Point p1, Point p2, Point p3) {
         double g = (((p1.x * p1.x) - (p3.x * p3.x)) * (p1.y - p2.y) +
                     ((p1.y * p1.y) - (p3.y * p3.y)) * (p1.y - p2.y) +
                     ((p2.x * p2.x) - (p1.x * p1.x)) * (p1.y - p3.y) +
                     ((p2.y * p2.y) - (p1.y * p1.y)) * (p1.y - p3.y)) /
                     (2 * ((p3.x - p1.x) * (p1.y - p2.y) - (p2.x - p1.x) * (p1.y - p3.y)));
+        return -g;
+    }
 
-        double c = -(p1.x * p1.x) - (p1.x * p1.x) - 2 * g * p1.x - 2 * f * p1.y;
-        radius = sqrt(g * g + f * f + c);
-        center = Point(-g, -f);
+    this(Point p1, Point p2, Point p3) {
+        // circle from three points...... don't think this was necessary
+        // no it totally is!!
+        center = Point(cx(p1, p2, p3), cy(p1, p2, p3));
+        radius = TwoPoints.distance(center, p1);
         renderPoint = p1;
+        constraints = [p1, p2, p3];
+    }
+
+    void updateConstraints() {
+        if (constraints.length == 2) {
+            // center and side
+            radius = TwoPoints.distance(center, constraints[1]);
+            renderPoint = constraints[1];
+        } else if (constraints.length == 3) {
+            center.x = cx(constraints[0], constraints[1], constraints[2]);
+            center.y = cy(constraints[0], constraints[1], constraints[2]);
+            radius = TwoPoints.distance(center, constraints[0]);
+            renderPoint = constraints[0];
+        }
+    }
+
+    Point circularInversion(Point p) {
+        // get distance from center to p
+        double dist = TwoPoints.distance(center, p);
+        // r^2 / dist = dist from center to p'
+        double dist_prime = (radius * radius) / dist;
+        // project new point with same angle as CP but with distance dist_prime
+        double angle = atan2(p.y - center.y, p.x - center.x);
+        Point p_prime = Point(dist_prime * cos(angle), dist_prime * sin(angle));
+        return p_prime;
     }
 
     override void render(Screen screen) {
