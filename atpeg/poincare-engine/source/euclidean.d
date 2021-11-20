@@ -17,7 +17,7 @@ struct Point {
     }
 
     Vector2 toScaledVector(Screen s) {
-        return Vector2(x*s.unit + s.center.x, y*s.unit + s.center.y);
+        return Vector2(x*s.unit + s.center.x, -y*s.unit + s.center.y);
     }
 
     void draw(Screen screen) {
@@ -165,6 +165,7 @@ class Circle : RenderBase {
                     (2 * ((p3.y - p1.y) * (p1.x - p2.x) - (p2.y - p1.y) * (p1.x - p3.x)));
         return -f;
     }
+
     private double cx(Point p1, Point p2, Point p3) {
         double g = (((p1.x * p1.x) - (p3.x * p3.x)) * (p1.y - p2.y) +
                     ((p1.y * p1.y) - (p3.y * p3.y)) * (p1.y - p2.y) +

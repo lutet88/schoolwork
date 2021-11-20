@@ -16,29 +16,19 @@ void main()
     Screen screen = Screen();
     RenderQueue rq = new RenderQueue(screen);
 
+    Circle disk = new Circle(Point(0, 0), 1);
+    Point p1 = Point(0.5, 0.5);
+    Point p2 = Point(0.8, 0.1);
 
-    Circle c = new Circle(Point(0, 0), 1);
-    rq.add(c);
-    Point p = Point(0.5, 0.3);
-    Point p_prime;
+    HypLine hl = new HypLine(disk, p1, p2);
+
+    rq.add(disk);
+    rq.add(hl);
 
     while (!WindowShouldClose()) {
-
-        if (IsKeyDown(KeyboardKey.KEY_RIGHT)) p.x += 0.01f;
-        if (IsKeyDown(KeyboardKey.KEY_LEFT)) p.x -= 0.01f;
-        if (IsKeyDown(KeyboardKey.KEY_UP)) p.y -= 0.01f;
-        if (IsKeyDown(KeyboardKey.KEY_DOWN)) p.y += 0.01f;
-
-        p_prime = c.circularInversion(p);
-
         BeginDrawing();
         ClearBackground(Colors.BLACK);
-
-        //DrawCircleLines(500, 500, 250, Colors.WHITE);
         rq.render();
-        p.draw(screen);
-        p_prime.draw(screen);
-
         EndDrawing();
     }
 }
