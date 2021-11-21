@@ -18,17 +18,18 @@ void main()
 
     Circle disk = new Circle(Point(0, 0), 1);
     Point p1 = Point(0.5, 0.5);
-    Point p2 = Point(0.8, 0.1);
+    Point p2 = Point(0.8, -0.3);
 
     // also works with HypLine
-    RenderBase hc = new HypCircle(disk, p2, p1);
-
+    RenderBase hc = hypPerpendicularBisector(disk, p1, p2);
     rq.add(disk);
     rq.add(hc);
 
     while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(Colors.BLACK);
+        p1.draw(screen);
+        p2.draw(screen);
         rq.render();
         EndDrawing();
     }

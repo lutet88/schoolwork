@@ -10,6 +10,10 @@ import raylib;
 
 const double MAX_ERROR = 0.005;
 
+double error(double a, double b) {
+    return abs((a / b) - 1);
+}
+
 
 struct Point {
     double x;
@@ -61,7 +65,6 @@ class Segment : TwoPoints {
         DrawLineEx(p1.toScaledVector(screen), p2.toScaledVector(screen), 4, color);
         p1.draw(screen);
         p2.draw(screen);
-        writeln("drawing segment");
     }
 }
 
@@ -140,7 +143,7 @@ class Line : TwoPoints {
         double y = x * m1 + b1;
         double alty = x * m2 + b2;
 
-        assert (abs((alty / y) - 1) < MAX_ERROR, "linear intersection failed!");
+        assert (error(alty, y) < MAX_ERROR, "linear intersection failed!");
 
         return Point(x, y);
     }

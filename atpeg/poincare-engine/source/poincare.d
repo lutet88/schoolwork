@@ -31,6 +31,45 @@ double hypDistance(Circle disk, Point p, Point q, HypLine g) {
 }
 
 
+HypLine hypPerpendicularBisector(Circle disk, Point p, Point q) {
+    // draw two circles from p to q and q to p
+    HypCircle hcp = new HypCircle(disk, p, q);
+    HypCircle hcq = new HypCircle(disk, q, p);
+    // rq.add(hcp);
+    // rq.add(hcq);
+    double pq = TwoPoints.distance(hcp.euC.center, hcq.euC.center);
+
+    // find the two points where they intersect
+    double qm = ((hcq.euC.radius * hcq.euC.radius) - (hcp.euC.radius * hcp.euC.radius) + (pq * pq)) / (2 * pq);
+    double pm = ((hcp.euC.radius * hcp.euC.radius) - (hcq.euC.radius * hcq.euC.radius) + (pq * pq)) / (2 * pq);
+
+    assert (error(pm + qm, pq) < MAX_ERROR, "hypPerpendicularBisector failed, step 1");
+
+    double ma = sqrt((hcq.euC.radius * hcq.euC.radius) - (qm * qm));
+    double ma2 = sqrt((hcp.euC.radius * hcp.euC.radius) - (pm * pm));
+
+    assert (error(ma, ma2) < MAX_ERROR, "hypPerpendicularBisector failed, step 2");
+
+    // find angle from p to q
+    double thetapq = atan2(hcq.euC.center.y - hcp.euC.center.y, hcq.euC.center.x - hcp.euC.center.x);
+    // traverse it by pm
+    Point m = Point(hcp.euC.center.x + pm * cos(thetapq), hcp.euC.center.y + pm * sin(thetapq));
+
+    // traverse perpendicular to it by ma to obtain our two intersection points
+    Point a = Point(m.x + ma * cos(thetapq + (std.math.PI / 2)), m.y + ma * sin(thetapq + (std.math.PI / 2)));
+    Point b = Point(m.x + ma * cos(thetapq - (std.math.PI / 2)), m.y + ma * sin(thetapq - (std.math.PI / 2)));
+
+    /* debug
+    Segment ab = new Segment(a, b, rq);
+    Segment cc = new Segment(hcp.euC.center, hcq.euC.center, rq);
+    Segment cm = new Segment(hcp.euC.center, m, rq);
+    */
+
+    // return HypLine from intersection points
+    return new HypLine(disk, a, b);
+}
+
+
 class HypLine : RenderBase {
     double startAngle;
     double endAngle;
@@ -40,12 +79,17 @@ class HypLine : RenderBase {
     Point pa;
     Point pb;
 
+    Point c;
+    Point d;
+
     Circle euC;
 
     this(Circle disk, Point c, Point d) {
         // define from two points
         Point c_prime = disk.circularInversion(c);
         euC = new Circle(c, d, c_prime);
+        this.c = c;
+        this.d = d;
 
         // get angles
         // theta: offset angle from x-axis
@@ -79,7 +123,7 @@ class HypLine : RenderBase {
     }
 
     Line euclideanTangent(Point p) {
-        assert (TwoPoints.distance(euC.center, p) == euC.radius, "invalid point for euclideanTangent");
+        assert (error(TwoPoints.distance(euC.center, p), euC.radius) < MAX_ERROR, "invalid point for euclideanTangent");
 
         // make copy of p with shifted coordinates so euC.center is (0, 0)
         Point p_shift = Point(p.x - euC.center.x, p.y - euC.center.y);
@@ -99,6 +143,8 @@ class HypLine : RenderBase {
 
         pa.draw(screen);
         pb.draw(screen);
+        c.draw(screen);
+        d.draw(screen);
     }
 }
 

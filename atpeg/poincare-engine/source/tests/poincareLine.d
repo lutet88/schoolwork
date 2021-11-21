@@ -20,7 +20,7 @@ void plstest()
     Point p1 = Point(0.5, 0.5);
     Point p2 = Point(0.8, 0.1);
 
-    // also works with HypLine
+    // also works with HypLine and HypCircle
     RenderBase hl = new HypSegment(disk, p1, p2);
 
     rq.add(disk);
