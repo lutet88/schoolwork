@@ -8,6 +8,9 @@ import poincare.rendering;
 import raylib;
 
 
+const double MAX_ERROR = 0.005;
+
+
 struct Point {
     double x;
     double y;
@@ -118,6 +121,28 @@ class Line : TwoPoints {
         p1 = start;
         p2 = end;
         rq.add(cast(Renderable) this);
+    }
+
+    this(Point anchor, double m) {
+        p1 = anchor;
+        p2 = Point(p1.x + 10, p1.y + 10 * m); // faraway point
+    }
+
+    static Point intersect(Line l1, Line l2) {
+        // generate linear form
+        double m1 = (l1.p2.y - l1.p1.y) / (l1.p2.x - l1.p1.x);
+        double m2 = (l2.p2.y - l2.p1.y) / (l2.p2.x - l2.p1.x);
+        double b1 = l1.p1.y - (l1.p1.x * m1);
+        double b2 = l2.p1.y - (l2.p1.x * m2);
+
+        // find intersection
+        double x = (b2 - b1) / (m1 - m2);
+        double y = x * m1 + b1;
+        double alty = x * m2 + b2;
+
+        assert (abs((alty / y) - 1) < MAX_ERROR, "linear intersection failed!");
+
+        return Point(x, y);
     }
 
     override void render(Screen screen) {

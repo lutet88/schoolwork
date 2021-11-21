@@ -7,7 +7,7 @@ import poincare.poincare;
 import raylib;
 
 
-void main()
+void plstest()
 {
     SetTargetFPS(60);
     InitWindow(1000, 1000, "Poincare Engine");
@@ -21,10 +21,10 @@ void main()
     Point p2 = Point(0.8, 0.1);
 
     // also works with HypLine
-    RenderBase hc = new HypCircle(disk, p2, p1);
+    RenderBase hl = new HypSegment(disk, p1, p2);
 
     rq.add(disk);
-    rq.add(hc);
+    rq.add(hl);
 
     while (!WindowShouldClose()) {
         BeginDrawing();
