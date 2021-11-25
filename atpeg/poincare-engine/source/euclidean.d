@@ -47,6 +47,18 @@ class TwoPoints : RenderBase {
     static double distance(Point p1, Point p2) {
         return sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y));
     }
+
+    static Line perpendicularBisector(Point p1, Point p2) {
+        // get slope of line between the TwoPoints
+        double theta = atan2(p2.y - p1.y, p2.x - p1.x);
+        // rotate by 90 degrees
+        double theta_prime = theta + raylib.PI / 2;
+        // get midpoint of p1 and p2
+        Point midpoint = Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+        // get a point on the line
+        Point otherpoint = Point(midpoint.x + cos(theta_prime), midpoint.y + sin(theta_prime));
+        return new Line(midpoint, otherpoint);
+    }
 }
 
 class Segment : TwoPoints {

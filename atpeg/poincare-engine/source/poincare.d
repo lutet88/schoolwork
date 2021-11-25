@@ -35,16 +35,16 @@ HypLine hypPerpendicularBisector(Circle disk, Point p, Point q) {
     // draw two circles from p to q and q to p
     HypCircle hcp = new HypCircle(disk, p, q);
     HypCircle hcq = new HypCircle(disk, q, p);
-    // rq.add(hcp);
-    // rq.add(hcq);
+
     double pq = TwoPoints.distance(hcp.euC.center, hcq.euC.center);
 
-    // find the two points where they intersect
+    // find the distance to the midpoint
     double qm = ((hcq.euC.radius * hcq.euC.radius) - (hcp.euC.radius * hcp.euC.radius) + (pq * pq)) / (2 * pq);
     double pm = ((hcp.euC.radius * hcp.euC.radius) - (hcq.euC.radius * hcq.euC.radius) + (pq * pq)) / (2 * pq);
 
     assert (error(pm + qm, pq) < MAX_ERROR, "hypPerpendicularBisector failed, step 1");
 
+    // use pythagorean theorem to find distance from midpoint to intersection point
     double ma = sqrt((hcq.euC.radius * hcq.euC.radius) - (qm * qm));
     double ma2 = sqrt((hcp.euC.radius * hcp.euC.radius) - (pm * pm));
 
@@ -63,6 +63,8 @@ HypLine hypPerpendicularBisector(Circle disk, Point p, Point q) {
     Segment ab = new Segment(a, b, rq);
     Segment cc = new Segment(hcp.euC.center, hcq.euC.center, rq);
     Segment cm = new Segment(hcp.euC.center, m, rq);
+    rq.add(hcp);
+    rq.add(hcq);
     */
 
     // return HypLine from intersection points
@@ -111,6 +113,25 @@ class HypLine : RenderBase {
         pb = Point(euC.center.x + euC.radius * cos(endAngle), euC.center.y + euC.radius * sin(endAngle));
     }
 
+    this(Circle disk, Circle newEuC) {
+        // get angles
+        // theta: offset angle from x-axis
+        double theta2 = atan2(newEuC.center.y - disk.center.y, newEuC.center.x - disk.center.x);
+
+        // beta: angle COA (refer to notes)
+        double beta = atan(disk.radius / newEuC.radius);
+
+        // find points a and b
+        Point a = Point(newEuC.center.x + newEuC.radius * cos(raylib.PI + theta2 - beta), newEuC.center.y + newEuC.radius * sin(raylib.PI + theta2 - beta));
+        Point b = Point(newEuC.center.x + newEuC.radius * cos(raylib.PI + theta2 + beta), newEuC.center.y + newEuC.radius * sin(raylib.PI + theta2 + beta));
+
+        pa = a;
+        pb = b;
+        euC = newEuC;
+        startAngle = raylib.PI + theta2 - beta;
+        endAngle = raylib.PI + theta2 + beta;
+    }
+
     Point circularInversion(Point p) {
         // get distance from center to p
         double dist = TwoPoints.distance(euC.center, p);
@@ -143,8 +164,36 @@ class HypLine : RenderBase {
 
         pa.draw(screen);
         pb.draw(screen);
-        c.draw(screen);
-        d.draw(screen);
+        if (c.x != 0 && c.y != 0) c.draw(screen);
+        if (d.x != 0 && d.y != 0) d.draw(screen);
+    }
+
+    HypLine rotateAroundPoint(Circle disk, Point p, double theta, RenderQueue rq) {
+        // assert p is on the HypLine
+        assert (error(euC.radius, TwoPoints.distance(p, euC.center)) < MAX_ERROR, "invalid point for rotateAroundPoint");
+
+        // find angle between euC.center and p
+        double alpha = atan2(euC.center.y - p.y, euC.center.x - p.x);
+        double finalAngle = alpha + theta;
+        // get line from p and that angle
+        Line rl = new Line(p, Point(p.x + 2 * cos(finalAngle), p.y + 2 * sin(finalAngle)));
+
+        // get perpendicular bisector between p and p inverted
+        Point p_prime = disk.circularInversion(p);
+        Line pb = TwoPoints.perpendicularBisector(p, p_prime);
+        pb.color = Colors.BLUE;
+
+        // find intersection point between the two, that's the new euC.center
+        Point i = Line.intersect(pb, rl);
+
+        Circle newEuC = new Circle(i, p);
+
+        /*rq.add(new Line(euC.center, p));
+        rq.add(rl);
+        rq.add(pb);
+        rq.add(newEuC);*/
+
+        return new HypLine(disk, newEuC);
     }
 }
 
