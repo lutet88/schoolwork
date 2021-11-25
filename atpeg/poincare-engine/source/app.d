@@ -1,8 +1,10 @@
 import std.stdio;
+import std.math;
 
 import poincare.euclidean;
 import poincare.rendering;
 import poincare.poincare;
+import poincare.tiling;
 
 import raylib;
 
@@ -17,35 +19,37 @@ void main()
     RenderQueue rq = new RenderQueue(screen);
 
     Circle disk = new Circle(Point(0, 0), 1);
-    Point p1 = Point(0.5, 0.5);
-    Point p2 = Point(0.5, 0.0);
+    double d = tilingDistance(6, 4);
+    Point p1 = Point(-d, 0);
+    double k = 2 * raylib.PI / 3;
+    double j = raylib.PI / 2;
+
+    Point p2 = Point(d * cos(k), d * sin(k));
+
 
     // also works with HypLine
-    HypSegment hc = new HypSegment(disk, p1, p2);
-    hc.color = Colors.BLUE;
-    rq.add(disk);
-    rq.add(hc);
+    HypSegment[] poly = new HypSegment[6];
 
-    double j = 0.2;
+    poly[0] = new HypSegment(disk, p1, p2);
+    poly[0].setColor(Colors.BLUE);
+    rq.add(poly[0]);
+
+    for (int i = 1; i < 6; i++) {
+        poly[i] = poly[i-1].rotateAroundPoint(disk, poly[i-1].d, j);
+        poly[i].setColor(Colors.BLUE);
+        rq.add(poly[i]);
+    }
+
+    rq.add(disk);
+
 
     while (!WindowShouldClose()) {
 
-        if (IsKeyDown(KeyboardKey.KEY_RIGHT)) j += 0.04f;
-        if (IsKeyDown(KeyboardKey.KEY_LEFT)) j -= 0.04f;
-
-        //writeln(j / raylib.PI * 180);
-
-        HypSegment hrot = hc.rotateAroundPoint(disk, p1, j, rq);
-        hrot.color = Colors.RED;
-
-        HypCircle sc = new HypCircle(disk, p1, p2);
-        sc.color = Colors.PURPLE;
         BeginDrawing();
         ClearBackground(Colors.BLACK);
 
         rq.render();
-        hrot.render(screen);
-        //sc.render(screen);
+
         EndDrawing();
     }
 }

@@ -207,6 +207,10 @@ class HypSegment : RenderBase {
     Point pa;
     Point pb;
 
+    // c and d are just copies of the constructor for easy building
+    Point c;
+    Point d;
+
     Circle euC;
 
     this(Circle disk, Point c, Point d) {
@@ -231,6 +235,9 @@ class HypSegment : RenderBase {
 
         pa = a1a2ccw < a1a2cw ? d : c;
         pb = a1a2ccw <= a1a2cw ? c : d;
+
+        this.c = c;
+        this.d = d;
 
         startAngle = fmod(startAngle + 4 * raylib.PI, 2 * raylib.PI);
         endAngle = fmod(endAngle + 4 * raylib.PI, 2 * raylib.PI);
@@ -259,7 +266,7 @@ class HypSegment : RenderBase {
         return tangent;
     }
 
-    HypSegment rotateAroundPoint(Circle disk, Point p, double theta, RenderQueue rq) {
+    HypSegment rotateAroundPoint(Circle disk, Point p, double theta) {
         assert (p == pa || p == pb, "invalid point for rotateAroundPoint");
 
         // use HypLine's implementation to obtain HypLine rotated
