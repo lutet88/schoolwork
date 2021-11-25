@@ -140,7 +140,7 @@ class Line : TwoPoints {
 
     this(Point anchor, double m) {
         p1 = anchor;
-        p2 = Point(p1.x + 10, p1.y + 10 * m); // faraway point
+        p2 = Point(p1.x + 1, p1.y + m); // faraway point
     }
 
     static Point intersect(Line l1, Line l2) {
@@ -173,6 +173,10 @@ class Line : TwoPoints {
         p2.draw(screen);
         p3.draw(screen);
         p4.draw(screen);
+    }
+
+    double slope() {
+        return (p2.y - p1.y) / (p2.x - p1.x);
     }
 }
 

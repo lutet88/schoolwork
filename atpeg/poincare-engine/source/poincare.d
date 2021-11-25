@@ -3,6 +3,7 @@ module poincare.poincare;
 import std.stdio;
 import std.math;
 import std.conv;
+import std.algorithm.comparison;
 
 import raylib;
 
@@ -168,7 +169,7 @@ class HypLine : RenderBase {
         if (d.x != 0 && d.y != 0) d.draw(screen);
     }
 
-    HypLine rotateAroundPoint(Circle disk, Point p, double theta, RenderQueue rq) {
+    HypLine rotateAroundPoint(Circle disk, Point p, double theta) {
         // assert p is on the HypLine
         assert (error(euC.radius, TwoPoints.distance(p, euC.center)) < MAX_ERROR, "invalid point for rotateAroundPoint");
 
@@ -206,10 +207,6 @@ class HypSegment : RenderBase {
     Point pa;
     Point pb;
 
-    // pc and pd are copies of the constructor
-    Point pc;
-    Point pd;
-
     Circle euC;
 
     this(Circle disk, Point c, Point d) {
@@ -221,11 +218,22 @@ class HypSegment : RenderBase {
         // theta: offset angle from x-axis
         double theta = atan2(disk.center.y - euC.center.y, disk.center.x - euC.center.x);
 
-        startAngle = atan2(c.y - euC.center.y, c.x - euC.center.x);
-        endAngle = atan2(d.y - euC.center.y, d.x - euC.center.x);
+        double a1 = atan2(c.y - euC.center.y, c.x - euC.center.x);
+        double a2 = atan2(d.y - euC.center.y, d.x - euC.center.x);
 
-        pa = Point(euC.center.x + euC.radius * cos(startAngle), euC.center.y + euC.radius * sin(startAngle));
-        pb = Point(euC.center.x + euC.radius * cos(endAngle), euC.center.y + euC.radius * sin(endAngle));
+        // get cw and ccw distances
+        double a1a2cw = fmod(a2 - a1 + 4 * raylib.PI, 2 * raylib.PI);
+        double a1a2ccw = fmod(a1 - a2 + 4 * raylib.PI, 2 * raylib.PI);
+
+        // use distances to decide which is pa and pb, startAngle and endAngle
+        startAngle = a1a2ccw < a1a2cw ? a2 : a1;
+        endAngle = a1a2ccw <= a1a2cw ? a1 : a2;
+
+        pa = a1a2ccw < a1a2cw ? d : c;
+        pb = a1a2ccw <= a1a2cw ? c : d;
+
+        startAngle = fmod(startAngle + 4 * raylib.PI, 2 * raylib.PI);
+        endAngle = fmod(endAngle + 4 * raylib.PI, 2 * raylib.PI);
     }
 
     override void render(Screen screen) {
@@ -234,6 +242,69 @@ class HypSegment : RenderBase {
 
         pa.draw(screen);
         pb.draw(screen);
+    }
+
+    Line euclideanTangent(Point p) {
+        assert (error(TwoPoints.distance(euC.center, p), euC.radius) < MAX_ERROR, "invalid point for euclideanTangent");
+
+        // make copy of p with shifted coordinates so euC.center is (0, 0)
+        Point p_shift = Point(p.x - euC.center.x, p.y - euC.center.y);
+
+        // take the tangent line for a centered circle
+        // x and y don't matter, only the ratio between them,
+        // since no matter what r is d/dx(r^2) = 0
+        // use formula m = -x/y, let's hope y != 0
+        double m = -(p_shift.x) / p_shift.y;
+        Line tangent = new Line(p, m);
+        return tangent;
+    }
+
+    HypSegment rotateAroundPoint(Circle disk, Point p, double theta, RenderQueue rq) {
+        assert (p == pa || p == pb, "invalid point for rotateAroundPoint");
+
+        // use HypLine's implementation to obtain HypLine rotated
+        HypLine hl2 = new HypLine(disk, pa, pb).rotateAroundPoint(disk, p, theta);
+
+        // draw a circle between p and the other point (q)
+        Point q = (p == pa ? pb : pa);
+
+        HypCircle hc = new HypCircle(disk, p, q);
+
+        // hc.euC and hl2.euC must be orthogonal, so find theta and beta
+        double theta2 = atan2(hl2.euC.center.y - hc.euC.center.y, hl2.euC.center.x - hc.euC.center.x);
+
+        double beta = atan(hl2.euC.radius / hc.euC.radius);
+
+        double gamma1 = theta2 + beta;
+        double gamma2 = theta2 - beta;
+
+        double dist = TwoPoints.distance(hc.euC.center, q);
+
+        Point b1 = Point(hc.euC.center.x + cos(gamma1) * dist, hc.euC.center.y + sin(gamma1) * dist);
+
+        Point b2 = Point(hc.euC.center.x + cos(gamma2) * dist, hc.euC.center.y + sin(gamma2) * dist);
+
+        // compare angles between hc.euC.center to b1 and b2, minus angle to q
+        double aq = atan2(q.y - hc.euC.center.y, q.x - hc.euC.center.x) + fmod(theta + 4 * raylib.PI, 2 * raylib.PI);
+        double ab1 = atan2(b1.y - hc.euC.center.y, b1.x - hc.euC.center.x);
+        double ab2 = atan2(b2.y - hc.euC.center.y, b2.x - hc.euC.center.x);
+
+        double db1 = min(abs(ab1 - aq), abs(ab1 + 2 * raylib.PI - aq));
+        double db2 = min(abs(ab2 - aq), abs(ab2 + 2 * raylib.PI - aq));
+
+        Point b = abs(db1) < abs(db2) ? b1 : b2;
+
+        /*//rq.add(new Segment(b, b));
+        rq.add(hl2);
+        rq.add(hc);
+        rq.add(new Segment(hl2.euC.center, disk.center));
+        rq.add(new Segment(disk.center, euC.center));
+        //rq.add(new Line(hc.euC.center, Point(hc.euC.center.x + cos(gamma), hc.euC.center.y + sin(gamma))).setColor(Colors.ORANGE));
+        //rq.add(new Line(hc.euC.center, Point(hc.euC.center.x + cos(theta2), hc.euC.center.y + sin(theta2))).setColor(Colors.PURPLE));
+        //rq.add(new Line(hc.euC.center, Point(hc.euC.center.x + 1, hc.euC.center.y + slope_to_p)));
+        //rq.add(hl2.euclideanTangent(p).setColor(Colors.YELLOW));*/
+
+        return new HypSegment(disk, p, b);
     }
 }
 

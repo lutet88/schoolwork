@@ -7,7 +7,7 @@ import poincare.poincare;
 import raylib;
 
 
-void main()
+void raptest()
 {
     SetTargetFPS(60);
     InitWindow(1000, 1000, "Poincare Engine");
@@ -18,34 +18,31 @@ void main()
 
     Circle disk = new Circle(Point(0, 0), 1);
     Point p1 = Point(0.5, 0.5);
-    Point p2 = Point(0.5, 0.0);
+    Point p2 = Point(0.8, -0.3);
 
     // also works with HypLine
-    HypSegment hc = new HypSegment(disk, p1, p2);
+    HypLine hc = new HypLine(disk, p1, p2);
     hc.color = Colors.BLUE;
     rq.add(disk);
     rq.add(hc);
 
-    double j = 0.2;
+    double j = raylib.PI / 4;
 
     while (!WindowShouldClose()) {
 
-        if (IsKeyDown(KeyboardKey.KEY_RIGHT)) j += 0.04f;
-        if (IsKeyDown(KeyboardKey.KEY_LEFT)) j -= 0.04f;
+        if (IsKeyDown(KeyboardKey.KEY_RIGHT)) j += 0.01f;
+        if (IsKeyDown(KeyboardKey.KEY_LEFT)) j -= 0.01f;
 
-        //writeln(j / raylib.PI * 180);
+        writeln(j / raylib.PI * 180);
 
-        HypSegment hrot = hc.rotateAroundPoint(disk, p1, j, rq);
+        HypLine hrot = hc.rotateAroundPoint(disk, p1, j);
         hrot.color = Colors.RED;
 
-        HypCircle sc = new HypCircle(disk, p1, p2);
-        sc.color = Colors.PURPLE;
         BeginDrawing();
         ClearBackground(Colors.BLACK);
 
         rq.render();
         hrot.render(screen);
-        //sc.render(screen);
         EndDrawing();
     }
 }

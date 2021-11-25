@@ -19,6 +19,10 @@ class RenderBase : Renderable {
     void render(Screen screen) {
         return;
     }
+    RenderBase setColor(Color c) {
+        color = c;
+        return this;
+    }
 }
 
 class RenderQueue {
