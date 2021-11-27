@@ -169,7 +169,8 @@ class HypLine : RenderBase {
         if (d.x != 0 && d.y != 0) d.draw(screen);
     }
 
-    HypLine rotateAroundPoint(Circle disk, Point p, double theta) {
+    // HypLine rotateAroundPoint(Circle disk, Point p, double theta) { return rotateAroundPoint(disk, p, theta, null); }
+    HypLine rotateAroundPoint(Circle disk, Point p, double theta) { //, RenderQueue rq) {
         // assert p is on the HypLine
         assert (error(euC.radius, TwoPoints.distance(p, euC.center)) < MAX_ERROR, "invalid point for rotateAroundPoint");
 
@@ -239,13 +240,23 @@ class HypSegment : RenderBase {
         this.c = c;
         this.d = d;
 
-        startAngle = fmod(startAngle + 4 * raylib.PI, 2 * raylib.PI);
-        endAngle = fmod(endAngle + 4 * raylib.PI, 2 * raylib.PI);
+        if (endAngle < startAngle) {
+            endAngle += 2 * raylib.PI;
+        }
+
+        // writeln("start: " ~ to!string(startAngle) ~ ", end: " ~ to!string(endAngle));
     }
 
     override void render(Screen screen) {
         // TODO: FIX RAYLIB!!!!
-        DrawRing(euC.center.toScaledVector(screen), euC.radius * screen.unit - 2, euC.radius * screen.unit + 2, startAngle / RADIAN_TO_DEGREES + 90, endAngle / RADIAN_TO_DEGREES + 90, SEGMENTS, color);
+        // check if it's a line
+        if (error(pa.x * pb.y - pb.x * pa.y, 0) < (MAX_ERROR / 100)) {
+            // line
+            DrawLineEx(pa.toScaledVector(screen), pb.toScaledVector(screen), 4, color);
+        } else {
+            // ring
+            DrawRing(euC.center.toScaledVector(screen), euC.radius * screen.unit - 2, euC.radius * screen.unit + 2, startAngle / RADIAN_TO_DEGREES + 90, endAngle / RADIAN_TO_DEGREES + 90, SEGMENTS, color);
+        }
 
         pa.draw(screen);
         pb.draw(screen);
@@ -266,7 +277,8 @@ class HypSegment : RenderBase {
         return tangent;
     }
 
-    HypSegment rotateAroundPoint(Circle disk, Point p, double theta) {
+    // HypSegment rotateAroundPoint(Circle disk, Point p, double theta) { return rotateAroundPoint(disk, p, theta, null); }
+    HypSegment rotateAroundPoint(Circle disk, Point p, double theta) { //, RenderQueue rq) {
         assert (p == pa || p == pb, "invalid point for rotateAroundPoint");
 
         // use HypLine's implementation to obtain HypLine rotated
@@ -291,27 +303,32 @@ class HypSegment : RenderBase {
 
         Point b2 = Point(hc.euC.center.x + cos(gamma2) * dist, hc.euC.center.y + sin(gamma2) * dist);
 
-        // compare angles between hc.euC.center to b1 and b2, minus angle to q
-        double aq = atan2(q.y - hc.euC.center.y, q.x - hc.euC.center.x) + fmod(theta + 4 * raylib.PI, 2 * raylib.PI);
-        double ab1 = atan2(b1.y - hc.euC.center.y, b1.x - hc.euC.center.x);
-        double ab2 = atan2(b2.y - hc.euC.center.y, b2.x - hc.euC.center.x);
+        // compare angles between hc.center to b1 and b2, minus angle to q
+        double aq = atan2(q.y - hc.center.y, q.x - hc.center.x) + fmod(theta + 4 * raylib.PI, 2 * raylib.PI);
+        double ab1 = atan2(b1.y - hc.center.y, b1.x - hc.center.x);
+        double ab2 = atan2(b2.y - hc.center.y, b2.x - hc.center.x);
 
         double db1 = min(abs(ab1 - aq), abs(ab1 + 2 * raylib.PI - aq));
         double db2 = min(abs(ab2 - aq), abs(ab2 + 2 * raylib.PI - aq));
 
         Point b = abs(db1) < abs(db2) ? b1 : b2;
 
-        /*//rq.add(new Segment(b, b));
-        rq.add(hl2);
-        rq.add(hc);
-        rq.add(new Segment(hl2.euC.center, disk.center));
-        rq.add(new Segment(disk.center, euC.center));
+        //rq.add(new Segment(b, b));
+        //rq.add(hl2);
+        //rq.add(hc);
+        //rq.add(new Segment(hl2.euC.center, disk.center));
+        //rq.add(new Segment(disk.center, euC.center));
+        //rq.add(new RayLine(hc.center, Point(hc.center.x + cos(aq), hc.euC.center.y + sin(aq))).setColor(Colors.YELLOW));
         //rq.add(new Line(hc.euC.center, Point(hc.euC.center.x + cos(gamma), hc.euC.center.y + sin(gamma))).setColor(Colors.ORANGE));
         //rq.add(new Line(hc.euC.center, Point(hc.euC.center.x + cos(theta2), hc.euC.center.y + sin(theta2))).setColor(Colors.PURPLE));
         //rq.add(new Line(hc.euC.center, Point(hc.euC.center.x + 1, hc.euC.center.y + slope_to_p)));
-        //rq.add(hl2.euclideanTangent(p).setColor(Colors.YELLOW));*/
+        //rq.add(hl2.euclideanTangent(p).setColor(Colors.YELLOW));
 
         return new HypSegment(disk, p, b);
+    }
+
+    Point nonMatchingPoint(Point p) {
+        return (p == c ? d : c);
     }
 }
 

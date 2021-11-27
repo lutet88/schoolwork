@@ -2,6 +2,8 @@ module poincare.euclidean;
 
 import std.math;
 import std.stdio;
+import std.conv;
+import std.algorithm.comparison;
 
 import poincare.rendering;
 
@@ -11,7 +13,8 @@ import raylib;
 const double MAX_ERROR = 0.005;
 
 double error(double a, double b) {
-    return abs((a / b) - 1);
+    double err = min(abs((a / b) - 1), abs(b - a));
+    return (a == double.nan && b == double.nan) || (a == -double.nan && b == -double.nan) ? 0 : err;
 }
 
 
@@ -150,10 +153,23 @@ class Line : TwoPoints {
         double b1 = l1.p1.y - (l1.p1.x * m1);
         double b2 = l2.p1.y - (l2.p1.x * m2);
 
+        // if slope of one is infinity
+        if (m1 == double.infinity || m1 == -double.infinity) {
+            return Point(l1.p1.x, l1.p1.x * m2 + b2);
+        }
+        if (m2 == double.infinity || m2 == -double.infinity) {
+            return Point(l2.p1.x, l2.p1.x * m1 + b1);
+        }
+
         // find intersection
         double x = (b2 - b1) / (m1 - m2);
         double y = x * m1 + b1;
         double alty = x * m2 + b2;
+
+        /*writeln(to!string(m1) ~ "x + " ~ to!string(b1));
+        writeln(to!string(m2) ~ "x + " ~ to!string(b2));
+        writeln(alty);
+        writeln(y);*/
 
         assert (error(alty, y) < MAX_ERROR, "linear intersection failed!");
 
