@@ -20,8 +20,10 @@ void main()
     RenderQueue rq = new RenderQueue(screen);
 
     Circle disk = new Circle(Point(0, 0), 1);
+    disk.setColor(Colors.WHITE);
 
-    CenteredTiling tiling = new CenteredTiling(disk, 5, 5, 1);
+    CenteredTiling tiling = new CenteredTiling(disk, 6, 4, 2);
+    tiling.setColor(Colors.PURPLE);
 
     rq.add(tiling);
     rq.add(disk);

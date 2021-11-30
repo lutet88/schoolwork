@@ -84,6 +84,7 @@ class HypTile {
     HypPolygon poly;
     int p;
     int q;
+    HypTile* parent;
     HypTile*[] neighbors;
 
     this(HypPolygon poly, int p, int q) {
@@ -99,7 +100,6 @@ class HypTile {
         foreach (HypTile* n; neighbors) {
             if (n == null) continue;
             HypTile neighbor = *n;
-            writeln(n);
             if (neighbor !is null) {
                 neighbor.render(screen);
             }
@@ -127,28 +127,14 @@ class CenteredTiling : RenderBase {
 
         // generate the tiling
         for (int i = 0; i < size; i++) {
+            Point[] newOuterVertices = new Point[0];
             // for each outer vertex, there must be
             // - one edge polygon
             // - (q-3) corner polygons
             for (int v = 0; v < outerVertices.length; v++) {
-                writeln(outerVertices);
-                // generate the edge polygon between v and v+1
-                writeln("here");
-                HypSegment[] edgePolygon = new HypSegment[q];
-                edgePolygon[0] = new HypSegment(disk, outerVertices[v], outerVertices[(v+1) % outerVertices.length]);
-                // generate rotated vertices, each by (q-2)*pi (interior angles)
-                for (int j = 1; j < q; j++) {
-                    edgePolygon[j] = edgePolygon[j-1].rotateAroundPoint(disk, edgePolygon[j-1].d, 2 * raylib.PI / q);
-                    writeln(edgePolygon[j].d);
-                }
-                // TODO:
-                tiles ~= [new HypTile(new HypPolygon(disk, edgePolygon), p, q)];
-                center.neighbors[v*(q-2)] = &(tiles[tiles.length-1]);
-                writeln("edge generated");
-
-                // generate (q-3) corner polygons
-                for (int c = 0; c < q-3; c++) {
-                    HypSegment[] cornerPolygon = new HypSegment[q];
+                // generate (q-2) polygons
+                for (int c = 0; c < q-2; c++) {
+                    HypSegment[] cornerPolygon = new HypSegment[p];
                     cornerPolygon[0] = new HypSegment(
                                             disk,
                                             outerVertices[v],
@@ -156,22 +142,37 @@ class CenteredTiling : RenderBase {
                                         .rotateAroundPoint(
                                             disk,
                                             outerVertices[(v+1) % outerVertices.length],
-                                            (c+2) * (2 * raylib.PI) / q);
+                                            (c+1) * (2 * raylib.PI) / q);
 
-                    for (int j = 1; j < q; j++) {
+                    for (int j = 1; j < p; j++) {
                         cornerPolygon[j] = cornerPolygon[j-1].rotateAroundPoint(disk, cornerPolygon[j-1].d, 2 * raylib.PI / q);
                     }
                     tiles ~= [new HypTile(new HypPolygon(disk, cornerPolygon), p, q)];
-                    center.neighbors[v*(q-2)+c+1] = &(tiles[tiles.length-1]);
-                    writeln("corner generated");
+                    // center.neighbors[v*(q-2)+c] = &(tiles[tiles.length-1]);
+                    for (int j = p - 2; j >= 1; j--) {
+                        if (p != 3) newOuterVertices ~= cornerPolygon[j].d;
+                    }
+                    newOuterVertices ~= cornerPolygon[0].d;
                 }
             }
+            writeln(newOuterVertices.length);
+            outerVertices = newOuterVertices;
         }
     }
 
     override void render(Screen screen) {
         // writeln(&center);
         // writeln(center.neighbors);
-        this.center.render(screen);
+        //this.center.render(screen);
+        foreach (HypTile ht; tiles) {
+            ht.render(screen);
+        }
+    }
+
+    alias setColor = RenderBase.setColor;
+    void setColor(Color color) {
+        for (int i = 0; i < tiles.length; i++) {
+            tiles[i].poly.setColor(color);
+        }
     }
 }
