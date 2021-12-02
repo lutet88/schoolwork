@@ -281,7 +281,7 @@ class OffsetTiling : RenderBase {
     }
 
     override void render(Screen screen) {
-        writeln("rendering "~to!string(tiles.length)~" tiles");
+        // writeln("rendering "~to!string(tiles.length)~" tiles");
 
         foreach (HypTile ht; tiles) {
             ht.render(screen);

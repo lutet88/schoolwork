@@ -4,6 +4,7 @@ import std.math;
 import std.stdio;
 import std.conv;
 import std.algorithm.comparison;
+import std.string;
 
 import poincare.rendering;
 
@@ -288,5 +289,21 @@ class Circle : RenderBase {
 
         renderPoint.draw(screen);
         center.draw(screen);
+    }
+}
+
+class Text : RenderBase {
+    Point anchor;
+    string text;
+    double fontSize;
+
+    this(Point anchor, string text, double fontSize) {
+        this.text = text;
+        this.anchor = anchor;
+        this.fontSize = fontSize;
+    }
+
+    override void render(Screen screen) {
+        DrawTextEx(GetFontDefault(), cast(const(char)*) toStringz(text), anchor.toScaledVector(screen), fontSize * screen.unit, 2, color);
     }
 }
