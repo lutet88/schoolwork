@@ -22,7 +22,7 @@ void main()
     Circle disk = new Circle(Point(0, 0), 1);
     disk.setColor(Colors.WHITE);
 
-    OffsetTiling tiling = new OffsetTiling(disk, 5, 5, 2);
+    OffsetTiling tiling = new OffsetTiling(disk, Point(0.4, 0.4), 6, 4, 1, 2);
     tiling.setColor(Colors.PURPLE);
 
     rq.add(tiling);

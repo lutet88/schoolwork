@@ -145,6 +145,11 @@ class HypLine : RenderBase {
     }
 
     Line euclideanTangent(Point p) {
+        // preliminarily handle case where euC is NaN or inf (HypLine includes origin)
+        if (isNaN(euC.center.x) || isNaN(euC.center.y) || isInfinity(euC.center.x) || isInfinity(euC.center.y)) {
+            return new Line(c, d);
+        }
+
         assert (error(TwoPoints.distance(euC.center, p), euC.radius) < MAX_ERROR, "invalid point for euclideanTangent");
 
         // make copy of p with shifted coordinates so euC.center is (0, 0)
@@ -156,6 +161,7 @@ class HypLine : RenderBase {
         // use formula m = -x/y, let's hope y != 0
         double m = -(p_shift.x) / p_shift.y;
         Line tangent = new Line(p, m);
+
         return tangent;
     }
 
@@ -274,12 +280,13 @@ class HypSegment : RenderBase {
         // use formula m = -x/y, let's hope y != 0
         double m = -(p_shift.x) / p_shift.y;
         Line tangent = new Line(p, m);
+
         return tangent;
     }
 
     // HypSegment rotateAroundPoint(Circle disk, Point p, double theta) { return rotateAroundPoint(disk, p, theta, null); }
     HypSegment rotateAroundPoint(Circle disk, Point p, double theta) { //, RenderQueue rq) {
-        assert (p == pa || p == pb, "invalid point for rotateAroundPoint");
+        assert (error(p, pa) < MAX_ERROR || error(p, pb) < MAX_ERROR, "invalid point for rotateAroundPoint");
 
         // use HypLine's implementation to obtain HypLine rotated
         HypLine hl2 = new HypLine(disk, pa, pb).rotateAroundPoint(disk, p, theta);
@@ -341,7 +348,7 @@ class HypCircle : RenderBase {
     double radius;
 
     this(Circle disk, Point ctr, Point b) {
-        Point o = Point(0, 0);
+        Point o = disk.center;
 
         // draw hypLine between ctr and b
         HypLine cb = new HypLine(disk, b, ctr);
@@ -349,10 +356,18 @@ class HypCircle : RenderBase {
         // get euclidean tangent line at b on cb
         Line tangent = cb.euclideanTangent(b);
 
-        // find its intersection with co
-        Line co = new Line(o, ctr);
-        Point d = Line.intersect(tangent, co);
-
+        Point d;
+        // check ctr is origin
+        if (ctr == o) {
+            // use the constructor point (HypCircle is centered)
+            d = ctr;
+        } else {
+            // if they are not the same line, find the intersection
+            Line co = new Line(o, ctr);
+            d = Line.intersect(tangent, co);
+            // handle case where euC goes through origin
+            if (isNaN(d.x) || isNaN(d.y)) d = ctr;
+        }
         // radius is db
         euC = new Circle(d, TwoPoints.distance(d, b));
 

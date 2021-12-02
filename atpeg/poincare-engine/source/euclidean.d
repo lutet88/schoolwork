@@ -10,11 +10,16 @@ import poincare.rendering;
 import raylib;
 
 
-const double MAX_ERROR = 0.005;
+const double MAX_ERROR = 0.0005;
 
 double error(double a, double b) {
     double err = min(abs((a / b) - 1), abs(b - a));
-    return (a == double.nan && b == double.nan) || (a == -double.nan && b == -double.nan) ? 0 : err;
+    return ((isNaN(a) && isNaN(b)) ? 0 : err);
+}
+
+double error(Point a, Point b) {
+    // give the max of x and y error
+    return max(error(a.x, b.x), error(a.y, b.y));
 }
 
 
@@ -147,17 +152,22 @@ class Line : TwoPoints {
     }
 
     static Point intersect(Line l1, Line l2) {
+        // handle if line is a point
+        if (l1.p1 == l1.p2) return l1.p1;
+        if (l2.p1 == l2.p2) return l2.p1;
+
         // generate linear form
         double m1 = (l1.p2.y - l1.p1.y) / (l1.p2.x - l1.p1.x);
         double m2 = (l2.p2.y - l2.p1.y) / (l2.p2.x - l2.p1.x);
         double b1 = l1.p1.y - (l1.p1.x * m1);
         double b2 = l2.p1.y - (l2.p1.x * m2);
 
-        // if slope of one is infinity
-        if (m1 == double.infinity || m1 == -double.infinity) {
+        // if slope is infinity
+        if ((m1 == double.infinity || m1 == -double.infinity || isNaN(m1)) && (m2 == double.infinity || m2 == -double.infinity || isNaN(m2))) {
+            return Point(0, 0);
+        } else if (m1 == double.infinity || m1 == -double.infinity || isNaN(m1)) {
             return Point(l1.p1.x, l1.p1.x * m2 + b2);
-        }
-        if (m2 == double.infinity || m2 == -double.infinity) {
+        } else if (m2 == double.infinity || m2 == -double.infinity || isNaN(m2)) {
             return Point(l2.p1.x, l2.p1.x * m1 + b1);
         }
 
@@ -262,9 +272,10 @@ class Circle : RenderBase {
         double dist = TwoPoints.distance(center, p);
         // r^2 / dist = dist from center to p'
         double dist_prime = (radius * radius) / dist;
+
         // project new point with same angle as CP but with distance dist_prime
         double angle = atan2(p.y - center.y, p.x - center.x);
-        Point p_prime = Point(dist_prime * cos(angle), dist_prime * sin(angle));
+        Point p_prime = Point(center.x + dist_prime * cos(angle), center.y + dist_prime * sin(angle));
         return p_prime;
     }
 

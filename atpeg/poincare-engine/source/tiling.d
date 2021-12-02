@@ -55,6 +55,21 @@ class HypPolygon : RenderBase {
         center = Point(0, 0);
     }
 
+    // centered angled constructor
+    this(Circle disk, double radius, int p, double angle) {
+        this.p = p;
+        vertices = new Point[p];
+        for (int i = 0; i < p; i++) {
+            vertices[i] = Point(radius * cos(i * (2 * raylib.PI) / p + angle), radius * sin(i * (2 * raylib.PI) / p + angle));
+        }
+        sides = new HypSegment[p];
+        for (int i = 0; i < p; i++) {
+            sides[i] = new HypSegment(disk, vertices[i], vertices[(i+1) % p]);
+            sides[i].color = color;
+        }
+        center = Point(0, 0);
+    }
+
     this(Circle disk, HypSegment[] sides) {
         this.sides = sides;
         for (int i = 0; i < p; i++) {
@@ -149,10 +164,10 @@ class CenteredTiling : RenderBase {
                     }
                     tiles ~= [new HypTile(new HypPolygon(disk, cornerPolygon), p, q)];
                     // center.neighbors[v*(q-2)+c] = &(tiles[tiles.length-1]);
-                    for (int j = p - 2; j >= 1; j--) {
-                        if (p != 3) newOuterVertices ~= cornerPolygon[j].d;
+                    for (int j = p - (c == 0 ? 3 : 2); j >= 1; j--) {
+                        newOuterVertices ~= cornerPolygon[j].d;
                     }
-                    newOuterVertices ~= cornerPolygon[0].d;
+                    // newOuterVertices ~= cornerPolygon[0].d;
                 }
             }
             writeln(newOuterVertices.length);
@@ -184,7 +199,7 @@ class OffsetTiling : RenderBase {
     int p;
     int q;
 
-    this(Circle disk, Point center, int p, int q, int angle, int size) {
+    this(Circle disk, Point center, int p, int q, double angle, int size) {
         this.p = p;
         this.q = q;
 
@@ -192,28 +207,35 @@ class OffsetTiling : RenderBase {
             // simply generate centered tiling
             double d = tilingDistance(p, q);
             double angle_prime = 2 * raylib.PI - angle;
-            Point pt = Point(d*cos(angle_prime), d*sin(angle_prime));
 
-            HypSegment radius = new HypSegment(disk, center, pt);
-
-            center = new HypTile(new HypPolygon(disk, radius, center, p), p, q);
-        } else
+            this.center = new HypTile(new HypPolygon(disk, d, p, angle_prime), p, q);
+            writeln("doesn't get here...");
+        } else {
             // generate point with length tilingDistance
             double d = tilingDistance(p, q);
             double angle_prime = 2 * raylib.PI - angle;
             Point pt = Point(d*cos(angle_prime), d*sin(angle_prime));
 
             // circular invert it over the perpendicular bisector of origin and center
-            HypLine ppb = HypPerpendicularBisector(disk, origin, center);
+            HypLine ppb = hypPerpendicularBisector(disk, Point(0, 0), center);
             Point pt_prime = ppb.euC.circularInversion(pt);
+
+            /*writeln("offtile");
+            writeln(ppb.euC.center);
+            writeln(ppb.euC.radius);
+            writeln(pt);
+            writeln(pt_prime);
+            writeln(center);*/
 
             // set the polygon's radius to be that segment
             HypSegment radius = new HypSegment(disk, center, pt_prime);
 
-            center = new HypTile(new HypPolygon(disk, radius, center, p), p, q);
+            this.center = new HypTile(new HypPolygon(disk, radius, center, p), p, q);
         }
 
-        outerVertices = center.poly.vertices;
+        tiles ~= [this.center];
+        outerVertices = this.center.poly.vertices;
+        writeln(outerVertices.length);
 
         // generate the tiling
         for (int i = 0; i < size; i++) {
@@ -237,12 +259,13 @@ class OffsetTiling : RenderBase {
                     for (int j = 1; j < p; j++) {
                         cornerPolygon[j] = cornerPolygon[j-1].rotateAroundPoint(disk, cornerPolygon[j-1].d, 2 * raylib.PI / q);
                     }
+                    cornerPolygon[cornerPolygon.length-1].setColor(Colors.BLUE);
                     tiles ~= [new HypTile(new HypPolygon(disk, cornerPolygon), p, q)];
                     // center.neighbors[v*(q-2)+c] = &(tiles[tiles.length-1]);
-                    for (int j = p - 2; j >= 1; j--) {
-                        if (p != 3) newOuterVertices ~= cornerPolygon[j].d;
+                    for (int j = p - (c == 0 ? 3 : 2); j >= 1; j--) {
+                        newOuterVertices ~= cornerPolygon[j].d;
                     }
-                    newOuterVertices ~= cornerPolygon[0].d;
+                    // newOuterVertices ~= cornerPolygon[0].d;
                 }
             }
             writeln(newOuterVertices.length);
@@ -251,6 +274,8 @@ class OffsetTiling : RenderBase {
     }
 
     override void render(Screen screen) {
+        tiles[81].render(screen);
+
         foreach (HypTile ht; tiles) {
             ht.render(screen);
         }
