@@ -9,7 +9,7 @@ import poincare.tiling;
 import raylib;
 
 
-void main()
+void stiletest()
 {
 
     SetTargetFPS(60);
@@ -22,7 +22,7 @@ void main()
     Circle disk = new Circle(Point(0, 0), 1);
     disk.setColor(Colors.WHITE);
 
-    OffsetTiling tiling = new OffsetTiling(disk, 5, 5, 2);
+    CenteredTiling tiling = new CenteredTiling(disk, 6, 4, 2);
     tiling.setColor(Colors.PURPLE);
 
     rq.add(tiling);

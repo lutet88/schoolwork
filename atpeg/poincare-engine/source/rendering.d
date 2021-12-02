@@ -38,6 +38,10 @@ class RenderQueue {
         renderList ~= [r];
     }
 
+    void clear() {
+        renderList = new Renderable[0];
+    }
+
     void render() {
         foreach (Renderable r; renderList) {
             r.render(screen);

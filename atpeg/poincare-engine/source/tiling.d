@@ -176,3 +176,90 @@ class CenteredTiling : RenderBase {
         }
     }
 }
+
+class OffsetTiling : RenderBase {
+    HypTile center;
+    Point[] outerVertices;
+    HypTile[] tiles;
+    int p;
+    int q;
+
+    this(Circle disk, Point center, int p, int q, int angle, int size) {
+        this.p = p;
+        this.q = q;
+
+        if (center == Point(0, 0)) {
+            // simply generate centered tiling
+            double d = tilingDistance(p, q);
+            double angle_prime = 2 * raylib.PI - angle;
+            Point pt = Point(d*cos(angle_prime), d*sin(angle_prime));
+
+            HypSegment radius = new HypSegment(disk, center, pt);
+
+            center = new HypTile(new HypPolygon(disk, radius, center, p), p, q);
+        } else
+            // generate point with length tilingDistance
+            double d = tilingDistance(p, q);
+            double angle_prime = 2 * raylib.PI - angle;
+            Point pt = Point(d*cos(angle_prime), d*sin(angle_prime));
+
+            // circular invert it over the perpendicular bisector of origin and center
+            HypLine ppb = HypPerpendicularBisector(disk, origin, center);
+            Point pt_prime = ppb.euC.circularInversion(pt);
+
+            // set the polygon's radius to be that segment
+            HypSegment radius = new HypSegment(disk, center, pt_prime);
+
+            center = new HypTile(new HypPolygon(disk, radius, center, p), p, q);
+        }
+
+        outerVertices = center.poly.vertices;
+
+        // generate the tiling
+        for (int i = 0; i < size; i++) {
+            Point[] newOuterVertices = new Point[0];
+            // for each outer vertex, there must be
+            // - one edge polygon
+            // - (q-3) corner polygons
+            for (int v = 0; v < outerVertices.length; v++) {
+                // generate (q-2) polygons
+                for (int c = 0; c < q-2; c++) {
+                    HypSegment[] cornerPolygon = new HypSegment[p];
+                    cornerPolygon[0] = new HypSegment(
+                                            disk,
+                                            outerVertices[v],
+                                            outerVertices[(v+1) % outerVertices.length])
+                                        .rotateAroundPoint(
+                                            disk,
+                                            outerVertices[(v+1) % outerVertices.length],
+                                            (c+1) * (2 * raylib.PI) / q);
+
+                    for (int j = 1; j < p; j++) {
+                        cornerPolygon[j] = cornerPolygon[j-1].rotateAroundPoint(disk, cornerPolygon[j-1].d, 2 * raylib.PI / q);
+                    }
+                    tiles ~= [new HypTile(new HypPolygon(disk, cornerPolygon), p, q)];
+                    // center.neighbors[v*(q-2)+c] = &(tiles[tiles.length-1]);
+                    for (int j = p - 2; j >= 1; j--) {
+                        if (p != 3) newOuterVertices ~= cornerPolygon[j].d;
+                    }
+                    newOuterVertices ~= cornerPolygon[0].d;
+                }
+            }
+            writeln(newOuterVertices.length);
+            outerVertices = newOuterVertices;
+        }
+    }
+
+    override void render(Screen screen) {
+        foreach (HypTile ht; tiles) {
+            ht.render(screen);
+        }
+    }
+
+    alias setColor = RenderBase.setColor;
+    void setColor(Color color) {
+        for (int i = 0; i < tiles.length; i++) {
+            tiles[i].poly.setColor(color);
+        }
+    }
+}
