@@ -209,12 +209,11 @@ class OffsetTiling : RenderBase {
             double angle_prime = 2 * raylib.PI - angle;
 
             this.center = new HypTile(new HypPolygon(disk, d, p, angle_prime), p, q);
-            writeln("doesn't get here...");
         } else {
             // generate point with length tilingDistance
             double d = tilingDistance(p, q);
             double angle_prime = 2 * raylib.PI - angle;
-            Point pt = Point(d*cos(angle_prime), d*sin(angle_prime));
+            Point pt = Point(d * cos(angle_prime), d * sin(angle_prime));
 
             // circular invert it over the perpendicular bisector of origin and center
             HypLine ppb = hypPerpendicularBisector(disk, Point(0, 0), center);
@@ -229,13 +228,21 @@ class OffsetTiling : RenderBase {
 
             // set the polygon's radius to be that segment
             HypSegment radius = new HypSegment(disk, center, pt_prime);
+            radius.setColor(Colors.ORANGE);
 
             this.center = new HypTile(new HypPolygon(disk, radius, center, p), p, q);
+
+            /*
+            rq.add(radius);
+            rq.add(new HypCircle(disk, radius.c, radius.d).setColor(Colors.BLUE));
+            rq.add(new Circle(Point(0, 0), pt));
+            rq.add(ppb);
+            */
         }
 
         tiles ~= [this.center];
         outerVertices = this.center.poly.vertices;
-        writeln(outerVertices.length);
+        // writeln(outerVertices.length);
 
         // generate the tiling
         for (int i = 0; i < size; i++) {
@@ -268,13 +275,13 @@ class OffsetTiling : RenderBase {
                     // newOuterVertices ~= cornerPolygon[0].d;
                 }
             }
-            writeln(newOuterVertices.length);
+            // writeln(newOuterVertices.length);
             outerVertices = newOuterVertices;
         }
     }
 
     override void render(Screen screen) {
-        tiles[81].render(screen);
+        writeln("rendering "~to!string(tiles.length)~" tiles");
 
         foreach (HypTile ht; tiles) {
             ht.render(screen);

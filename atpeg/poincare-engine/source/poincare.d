@@ -31,7 +31,6 @@ double hypDistance(Circle disk, Point p, Point q, HypLine g) {
     return abs(ln((ap * bq) / (bp * aq)));
 }
 
-
 HypLine hypPerpendicularBisector(Circle disk, Point p, Point q) {
     // draw two circles from p to q and q to p
     HypCircle hcp = new HypCircle(disk, p, q);
@@ -60,7 +59,7 @@ HypLine hypPerpendicularBisector(Circle disk, Point p, Point q) {
     Point a = Point(m.x + ma * cos(thetapq + (std.math.PI / 2)), m.y + ma * sin(thetapq + (std.math.PI / 2)));
     Point b = Point(m.x + ma * cos(thetapq - (std.math.PI / 2)), m.y + ma * sin(thetapq - (std.math.PI / 2)));
 
-    /* debug
+    /*// debug
     Segment ab = new Segment(a, b, rq);
     Segment cc = new Segment(hcp.euC.center, hcq.euC.center, rq);
     Segment cm = new Segment(hcp.euC.center, m, rq);
@@ -350,6 +349,35 @@ class HypCircle : RenderBase {
     this(Circle disk, Point ctr, Point b) {
         Point o = disk.center;
 
+        /// center is origin
+        if (ctr == o) {
+            euC = new Circle(ctr, b);
+            center = ctr;
+            anchor = b;
+            return;
+        }
+
+        /// points and origin are colinear
+        if (colinear(o, ctr, b)) {
+            // invert ctr over the whole disk
+            Point ctr_prime = disk.circularInversion(ctr);
+
+            // get its midpoint then construct a circle from ctr to ctr_mid
+            Point midpoint = Point((ctr.x+ctr_prime.x) / 2, (ctr.y+ctr_prime.y) / 2);
+            Circle c = new Circle(midpoint, ctr);
+
+            // invert b over this circle, then find euclidean midpoint of b and b_prime
+            Point b_prime = c.circularInversion(b);
+            Point b_mid = Point((b.x+b_prime.x) / 2, (b.y+b_prime.y) / 2);
+
+            euC = new Circle(b_mid, b);
+            center = ctr;
+            anchor = b;
+            return;
+        }
+
+        /// all remaining cases are normal
+
         // draw hypLine between ctr and b
         HypLine cb = new HypLine(disk, b, ctr);
 
@@ -358,16 +386,12 @@ class HypCircle : RenderBase {
 
         Point d;
         // check ctr is origin
-        if (ctr == o) {
-            // use the constructor point (HypCircle is centered)
-            d = ctr;
-        } else {
-            // if they are not the same line, find the intersection
-            Line co = new Line(o, ctr);
-            d = Line.intersect(tangent, co);
-            // handle case where euC goes through origin
-            if (isNaN(d.x) || isNaN(d.y)) d = ctr;
-        }
+
+        // if they are not the same line, find the intersection
+        Line co = new Line(o, ctr);
+        d = Line.intersect(tangent, co);
+        // handle case where euC goes through origin
+        if (isNaN(d.x) || isNaN(d.y)) d = ctr;
         // radius is db
         euC = new Circle(d, TwoPoints.distance(d, b));
 
