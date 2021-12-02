@@ -33,6 +33,10 @@ void main()
     int q = 4;
     int depth = 2;
 
+    Color[] colors = [Colors.WHITE, Colors.YELLOW, Colors.GREEN, Colors.SKYBLUE, Colors.BLUE, Colors.PURPLE, Colors.VIOLET, Colors.PINK, Colors.RED, Colors.ORANGE, Colors.GRAY];
+
+    int color = 2;
+
 
     while (!WindowShouldClose()) {
 
@@ -54,22 +58,27 @@ void main()
         if (IsKeyPressed(KeyboardKey.KEY_H)) depth --;
         if (IsKeyPressed(KeyboardKey.KEY_Y)) depth ++;
 
-        a = fmod(a + 210 * raylib.PI, 2 * raylib.PI / p);
+        if (IsKeyPressed(KeyboardKey.KEY_C)) color ++;
+
+        a = fmod(a + 2 * p * raylib.PI, 2 * raylib.PI / p);
+        color %= colors.length;
 
         OffsetTiling tiling = new OffsetTiling(disk, Point(x, y), p, q, a, depth);
-        tiling.setColor(Colors.PURPLE);
+        tiling.setColor(colors[color]);
 
-        Text tiles = new Text(Point(1, -1.37), "tiles: " ~ to!string(tiling.tiles.length), 0.1);
-        Text coords = new Text(Point(1, -1.5), "x: " ~ to!string(x) ~ ", y: " ~ to!string(y), 0.1);
-        Text pq = new Text(Point(1, -1.63), "p: " ~ to!string(p) ~ ", q: " ~ to!string(q), 0.1);
-        Text ang = new Text(Point(1, -1.76), "theta: " ~ to!string(a), 0.1);
-        Text dpt = new Text(Point(1, -1.89), "depth: " ~ to!string(depth), 0.1);
+        Text segments = new Text(Point(-1.9, -1.14), "segments: " ~ to!string(tiling.tiles.length * p), 0.12);
+        Text tiles = new Text(Point(-1.9, -1.27), "tiles: " ~ to!string(tiling.tiles.length), 0.12);
+        Text coords = new Text(Point(-1.9, -1.4), "x: " ~ to!string(x) ~ ", y: " ~ to!string(y), 0.12);
+        Text pq = new Text(Point(-1.9, -1.53), "p: " ~ to!string(p) ~ ", q: " ~ to!string(q), 0.12);
+        Text ang = new Text(Point(-1.9, -1.66), "theta: " ~ to!string(a), 0.12);
+        Text dpt = new Text(Point(-1.9, -1.79), "depth: " ~ to!string(depth), 0.12);
 
         coords.setColor(Colors.WHITE);
         pq.setColor(Colors.WHITE);
         ang.setColor(Colors.WHITE);
         dpt.setColor(Colors.WHITE);
         tiles.setColor(Colors.WHITE);
+        segments.setColor(Colors.WHITE);
 
         BeginDrawing();
         ClearBackground(Colors.BLACK);
@@ -83,6 +92,7 @@ void main()
         ang.render(screen);
         dpt.render(screen);
         tiles.render(screen);
+        segments.render(screen);
 
         EndDrawing();
     }

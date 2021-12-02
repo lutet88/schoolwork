@@ -11,7 +11,7 @@ import poincare.euclidean;
 import poincare.rendering;
 
 
-const int SEGMENTS = 20;
+const int SEGMENTS = 30;
 const double RADIAN_TO_DEGREES = 0.01745329251;
 
 alias ln = log;
