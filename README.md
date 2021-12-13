@@ -13,6 +13,8 @@ I created it so I can work across computers over GitHub rather than through a me
 
 ## noteworthy projects
 * [`atds/hyperbolic-tic-tac-toe`](atds/hyperbolic-tic-tac-toe)
+* [`atds/packet-analyzer`](atds/packet-analyzer)
+* [`atpeg/poincare-engine`](atpeg/poincare-engine)
 
 ## note
 please ignore the first 9 commit names, since I didn't have a standard.
