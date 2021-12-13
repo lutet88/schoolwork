@@ -1,0 +1,15 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/packet-analyzer
+packet-analyzer.so
+packet-analyzer.dylib
+packet-analyzer.dll
+packet-analyzer.a
+packet-analyzer.lib
+packet-analyzer-test-*
+*.exe
+*.o
+*.obj
+*.lst
