@@ -49,7 +49,7 @@ Although the ATDS curriculum informally requires the use of Java, Java's virtual
 
 ## Testing
 Due to the nature of my program, my testing solution was to make a device that can send packets of all sorts to my program.
-![device](https://lh3.googleusercontent.com/fife/AAWUweWoR4ju1gFOdD3nwovgYIbA4assKgXbjp9NOgPz9OjgHP_g6LceGPikgg7cQwn64b2o4UBYIxJk1-36DreZakgpRO09qtd1ZnpD38-kS9i-aWi0KjLsAZz1c50OXKij_kkmpvUvS4LaK1QTr2sH-GMCaP2yVJqpO6X6GwcaBh90Mgq7IK4aLZgThrSr2fxPzqykmef7FlkYr-WAweum6qjX9BqVobdx8Q1_62lamAjzEPYZFB7JxU44OlfRfzAJLbVATaEqhasm8ThraGP2CEx5nOgNGkU6UUg25Mq_wk5o2CTl4qCQG376dK2iVUcROyrv-glojz2xlAym1KdJ8AuCZFajmfy9HcuJlrTEuqmHWJNYBK81kurPuwb4wWtIE-Yzroohg8Ov_CAdUNlKcC_VdJBHPy1tk7adYw0rt9pcIVO_cThqbe6sqgF1nVHwSEO44KtqJ1-AnJAOY5_N5Xn3c5ank1MRDtsBYdhTc0EAIUbAokkyJD2Ou95CKzxJkkPuAKY3I3kioLjBkkn1kVlGzSc_5kACnIzyNYsrz8CGWFcQfM22f70RWCNiy7pZhUJGZC4yW2YAqu6jtn1geUzT08kmiP4e1gtpAyz-F7IVR1HbhN_AaWrv6B1_XRlJ8utdKiERAxVC9pGonc1HMq7xMtd2wNmwC7nVDdNL8R5v1IwICvzBd7sXQDtOm8X9OlztkeWJ5fnpizwUdX9Go-qUqQfKEZKXxw=w3840-h1784-ft)The device takes data from a BNO055 accelerometer, and outputs a variety of testing modes:
+![device](https://i.imgur.com/YTcjtnX.png)The device takes data from a BNO055 accelerometer, and outputs a variety of testing modes:
 |Mode|Function|
 |--|--|
 |0|Simple packet - 3 bytes cyclic|
@@ -62,18 +62,18 @@ Since the goal is to be able to intuitively analyze each of these situations, th
 
 
 ## Data Structures & Diagrams
-![UML](https://lh4.googleusercontent.com/t3zUR4qmjqCg9fRKZJG3QzZGEWTvVXzNF822C0crvMtFTuNEmaydaShTaDqOvrpHHlzmdpWj0KYpaGU6AJ8e=w3840-h1784)UML Diagram, excluding Application (GUI) and Serial
+![UML](https://i.imgur.com/MRokku1.png)UML Diagram, excluding Application (GUI) and Serial
 
 ### Application Procedure
-![app](https://lh3.googleusercontent.com/fife/AAWUweXgdOFkOCD_YtjOyf8NVA3fRQBnYLR1FU-LSApvMIE8uSCz5r4mX0vasM_LClIsNqccW7nq9rjPUijgB8RnjPBSVrv4zKVTpU0cTVTdBhHa2soX5810vX9uaQgYaxahrv-JYbCl4lMYvJrp4pPmhOpbdt7fYjkt0hqbmfxVYrbjcJMKd80drXx4sZNfjMwXNapyEEimuvfZDdKYp3npF31dhRVgKubVMt0eZ0SqRVXBLLoLbuTaAbJltZrAxMV8EJ1Fj1BFc5ch6nVQYPUBKIR47f7sMeUBSXYw714z4d_NaTro6RZDyOjDO5dbsVjF4l2awlsNImW11ubsMy9Qi9ryRJusf0tYRFdvcY3VyuHEPnteDDFp2czHKs2KS6O4OM0Z5teJNh9YeaxguhSxGvEB5FjFXI_GhK0gYdbVCMSrD3ABmTU4p5rKNDc-rJn8sTSJ9ViBV5RyGgJKW3y-H4Y2NpWDN_psoaAykq0LB9_Du1vDsR7okaZi9urV-GItT5zhAQbFMI5wdVilC_miZvkLPlcWAF_I-GqCyDIpACvmfAULvVP_E0pqXk8eJRUHe6mQjVh2KN1TR2pk8cv3ATrul8gwmx6w6THgN-SrFRAkKQnyx19FYrNaY8VSYJl3GMtrfUSD2y5NnVC98eqdKVytFRCjnS9nNl0yHuGP2R4LzvH7q59b6Gz9YRPiMC4lZggLM2bluBQI4ck-mco1sWM_UMHzo3dyNw=w3840-h1784-ft)
+![app](https://i.imgur.com/ve6kEJ4.png)
 Once all objects are created, the application consists of an application loop, going between three logical blocks: `SerialInterface.update()`, updating the `ByteGrid`, the object containing parameters for where the current cursor is, the current packet size, etc., and `ByteGrid.render()`, a method that renders all bytes in a central grid based on color, packet size, and lots of other parameters previously defined, calling `raylib` and `raygui` APIs. Additionally, side GUI elements are simply part of the `main()` loop, since I didn't want to define render methods for each individual GUI element.
 
 ### Serial Communications
-![Displaying 2021-12-14_11-34.png](https://lh3.google.com/u/0/d/1Lre9gMLP7GP3CZ1YsJmzVJ0ZAMAWZdOQ=w3840-h1784-iv1)
+![Displaying 2021-12-14_11-34.png](https://i.imgur.com/D7jrMZf.png)
 Since the serial port must be constantly refreshed in order to keep the system slot alive, I launch a secondary thread using `std.concurrency.spawn`. This thread simply runs a while loop trying to constantly read from the `SerialPort` object, sending all bytes into the message queue with the main thread. The main thread reads the entire queue and adds each bytes every time `update()` is called. Communication the other way, from the main thread to the worker thread is also used to halt the worker when Serial needs to stop, although a 1-second delay is added to safely halt the thread.
 
 ### GUI Interface
-![GUI](https://lh3.googleusercontent.com/fife/AAWUweVNVj2h7ExsvJ4zctDunmCp23kYxIsL5U0WL10gfxAEdTKCgcluJ48ovf1ZR6SrWzAXfyUFMSZrlyThBHUM_bLe812XRT1ZlTiz2Qib596WC1HMSpYqolF__CGA-sSz2M2HaRLIpKwr1YHNcS6T9F2vVn-HBbZrbj55LLhdq8YIvNCWRlInnpK96moXYm8Mg8nvJp0CA3SaPfJ3FmfeXOL48o9coc-cqdw-oJ1yUsyJUA1s-XqO7ykce4FwnAXx_95AF0-3OsRYk87ZJBEV0KzIl8OA7Tm6pExpHQjUvfQjnAhIWHQh3XEreSScaDZUCkjfZiT_Y4Iud8ZbM3BIshJIIRNm11Tyvp0bXY8IuSdQ0xlQVQZQtUwi9aqTx1arggMMJTug8tXMBwCS6BpwJOBeZFmPmSvmdBfOX2raCdgMmQrVTrnLzNCZQbJ2h-x3ZJ_LwrIwu0sxE5d-9ZIaQkZnlUiDxINRT69kH31f91HvvQCQ9dspOlRAcNBosqVYHwxiFLhaa7eify-Bl9PEcEfyyR1rttviES1l8aUJjGq9KriulJoL5xtu0EUP0VSRuqx-1sWMw8OFOd1P0AMAnUvhijtdxQKySLDSkIg2Ead7GBl1ekD7DJceIdTS8P-3ruQISterIPeWE9_rJijtDO8-20cehDo3uqqUikMkudhBTqxxO7ZrIWxvDD34bKgceQaxuvir1xQXxWo7KfxTUVE5MX_TCwSxaA=w3840-h1784-ft)
+![GUI](https://i.imgur.com/JeJsphu.png)
 The GUI is designed to be simple and straight-forward. Using `raygui`, the GUI presents all information a novice user might want. At the top, the current packet and byte are selected in dark gray and black outlines respectively, where the delete operations are performed.
 
 ## Video demonstration
